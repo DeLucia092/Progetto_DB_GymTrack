@@ -19,5 +19,9 @@ from django.urls import path
 from FitStats.views import *
 urlpatterns = [
     #path('admin/', admin.site.urls),
-path('',index,name='index')
+    path('',index, name='index'),
+    path('login', login, name='login'),
+
+    path('register', register, name='register')
+
 ]
