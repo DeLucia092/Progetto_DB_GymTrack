@@ -23,17 +23,20 @@ def login(request):
         return render(request, 'index.html', {'error_message': "Metodo non valido"})
 
 def register(request):
-    username=request.POST.get('username')
-    password= request.POST.get('password')
-    registration_function(username, password, request)
-    return render(request, 'index.html', {'username': username})
-
-def registration_function(username,password, request):
-    if (User.objects.filter(email=username).exists()):
-        return render(request, 'registration.html', {'error_message': "utente esiste già"})
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        if not username or not password:
+            return render(request, 'registration.html', {'error_message': "Compila tutti i campi"})
+        return registration_function(username, password, request)
     else:
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
-        user = User(email=username, password=hashed_password)
-        user.save()
-        return render(request, 'index.html', {})
+        return render(request, 'registration.html')
+
+def registration_function(username, password, request):
+    if User.objects.filter(email=username).exists():
+        return render(request, 'registration.html', {'error_message': "Utente esiste già"})
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    user = User(email=username, password=hashed_password)
+    user.save()
+    return render(request, 'index.html', {'username': username})
 
