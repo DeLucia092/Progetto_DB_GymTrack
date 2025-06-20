@@ -9,6 +9,10 @@
         <form method="post" action="/registration">
           {% csrf_token %}
           <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
             <input type="text" class="form-control" id="username" name="username" required>
           </div>
@@ -19,11 +23,14 @@
           <div class="d-grid">
             <button type="submit" class="btn btn-primary">Registrati</button>
           </div>
+          {% if error_message %}
+            <div class="alert alert-danger mt-3">{{ error_message }}</div>
+          {% endif %}
         </form>
 
         <div class="text-center">
-            <p class= "mb-2">Già registrato ?</p>
-            <form action="index" method="get">
+            <p class="mb-2">Già registrato?</p>
+            <form action="{% url 'login' %}" method="get">
                 <button type="submit" class="btn btn-outline-secondary">Login</button>
             </form>
         </div>

@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path
 from FitStats.views import *
 urlpatterns = [
-    #path('admin/', admin.site.urls),
-    path('',index, name='index'),
+    #path('admin/', admin.site.urls)
+   # path('',index, name='index'),
     path('login', login, name='login'),
+    path('registration', register, name='register'),
+    path('logout', logout, name='logout'),
 
-    path('registration', register, name='register')
-
+    path('', homepage, name='homepage')
 ]

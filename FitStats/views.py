@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from FitStats.models import User
 
 import hashlib
@@ -16,7 +16,10 @@ def login(request):
         hashed_pass=hashlib.md5(password.encode()).hexdigest()
 
         if (authenticated(email, hashed_pass)):
-            return render(request, 'homepage.html', {'username': email})
+            user = User.objects.get(email=email)
+            request.session['user_email'] = user.email  # Salva l'email dell'utente nella sessione
+            request.session['username'] = user.username  # Salva lo username reale
+            return redirect('homepage')
         else:
             return render(request, 'index.html', {'error_message': "Credenziali non valide, riprova"})
     else:
@@ -24,19 +27,29 @@ def login(request):
 
 def register(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
+        username = request.POST.get('username')
         if not username or not password:
             return render(request, 'registration.html', {'error_message': "Compila tutti i campi"})
-        return registration_function(username, password, request)
+        return registration_function(email, username, password, request)
     else:
         return render(request, 'registration.html')
 
-def registration_function(username, password, request):
+def registration_function(email, username, password, request):
     if User.objects.filter(email=username).exists():
         return render(request, 'registration.html', {'error_message': "Utente esiste già"})
     hashed_password = hashlib.md5(password.encode()).hexdigest()
-    user = User(email=username, password=hashed_password)
+    user = User(email=email, password=hashed_password, username=username)
     user.save()
     return render(request, 'index.html', {'username': username})
 
+def homepage(request):
+    username = request.session.get('username')
+    if not username:
+        return redirect('login')
+    return render(request, 'homepage.html', {'username': username})
+
+def logout(request):
+    request.session.flush()
+    return redirect('login')  # Assicurati che 'login' sia il nome della tua url di login
