@@ -1,0 +1,15 @@
+{% extends "abbellimento.html" %}
+{% block title %}Scegli tipo di registrazione{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="mb-4">Registrati come:</h2>
+                <a href="{% url 'registrazione_cliente' %}" class="btn btn-primary mb-3 w-100">Cliente</a>
+                <a href="{% url 'registrazione_trainer' %}" class="btn btn-secondary w-100">Personal Trainer</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

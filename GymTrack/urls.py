@@ -20,9 +20,10 @@ from FitStats.views import *
 urlpatterns = [
     #path('admin/', admin.site.urls)
    # path('',index, name='index'),
+    path('', homepage, name='homepage'),
     path('login', login, name='login'),
-    path('registration', register, name='register'),
     path('logout', logout, name='logout'),
-
-    path('', homepage, name='homepage')
+    path('registration', scelta_registrazione, name='scelta_registrazione'),
+    path('registration/cliente', registrazione_cliente, name='registrazione_cliente'),
+    path('registration/trainer/', registrazione_trainer, name='registrazione_trainer'),
 ]
