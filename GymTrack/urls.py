@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from FitStats.views import *
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     #path('admin/', admin.site.urls)
    # path('',index, name='index'),
@@ -26,4 +28,11 @@ urlpatterns = [
     path('registration', scelta_registrazione, name='scelta_registrazione'),
     path('registration/cliente', registrazione_cliente, name='registrazione_cliente'),
     path('registration/trainer/', registrazione_trainer, name='registrazione_trainer'),
+
+    path('creazione_schede/', creazione_schede, name='creazione_schede'),
+
+    path('pagina_creazione_scheda/', pagina_creazione_scheda, name='pagina_creazione_scheda'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

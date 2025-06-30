@@ -12,7 +12,7 @@ class Utente(models.Model):
 
     #PT
     stipendio = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    certificazione= models.CharField(max_length=200, blank=True, null=True)
+    certificazione = models.ImageField(upload_to='certificazioni/', blank=True, null=True)
 
     #Cliente
     tipo_sport = models.CharField(max_length=100, blank=True, null=True)

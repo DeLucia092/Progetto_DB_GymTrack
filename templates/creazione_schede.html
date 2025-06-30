@@ -1,0 +1,51 @@
+{% extends "abbellimento.html" %}
+
+{% block title %}Area Trainer{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Benvenuto Trainer, {{ username }}!</h2>
+
+    {% if success_message %}
+        <div class="alert alert-success">{{ success_message }}</div>
+    {% endif %}
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <!-- Pulsante Crea Scheda -->
+    <form method="POST" action="{% url 'creazione_schede' %}" class="mb-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="crea_scheda">
+        <button type="submit" class="btn btn-primary">Crea Scheda</button>
+    </form>
+
+    <!-- Form Aggiungi Certificazione con upload foto -->
+    <form method="POST" action="{% url 'creazione_schede' %}" enctype="multipart/form-data" class="mb-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="aggiungi_certificazione">
+        <div class="form-group">
+            <label for="certificazione">Carica certificazione (foto):</label>
+            <input type="file" name="certificazione" id="certificazione" class="form-control" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-secondary mt-2">Aggiungi Certificazione</button>
+    </form>
+
+    {% if utente.certificazione %}
+        <div class="mb-3">
+            <label>Certificazione caricata:</label><br>
+            <img src="{{ utente.certificazione.url }}" alt="Certificazione" width="200">
+        </div>
+    {% endif %}
+
+    <!-- Pulsante Aggiungi Stipendio -->
+    <form method="POST" action="{% url 'creazione_schede' %}" class="mb-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="aggiungi_stipendio">
+        <div class="form-group">
+            <input type="number" step="0.01" name="stipendio" class="form-control" placeholder="Nuovo stipendio" required>
+        </div>
+        <button type="submit" class="btn btn-success mt-2">Aggiungi Stipendio</button>
+    </form>
+</div>
+{% endblock %}
