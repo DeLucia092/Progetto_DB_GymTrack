@@ -1,10 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "abbellimento.html" %}
+{% block title %}Crea Scheda Allenamento{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+    <h2>Crea una nuova scheda d'allenamento</h2>
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+    {% if success_message %}
+        <div class="alert alert-success">{{ success_message }}</div>
+    {% endif %}
+    <form method="POST" id="schedaForm" action="{% url 'pagina_creazione_scheda' %}">
+        {% csrf_token %}
+        <div class="form-group mt-3">
+            <label for="giorno_inizio">Data inizio:</label>
+            <input type="date" class="form-control" id="giorno_inizio" name="giorno_inizio" required>
+        </div>
+        <div class="form-group mt-3">
+            <label for="giorno_fine">Data fine:</label>
+            <input type="date" class="form-control" id="giorno_fine" name="giorno_fine" required>
+        </div>
+        <div class="form-group mt-3">
+            <label for="email_utente">Email utente:</label>
+            <input type="email" class="form-control" id="email_utente" name="email_utente" required>
+        </div>
+        <hr>
+        <div id="giornate-container">
+            <div class="giornata-form mb-4">
+                <div class="row align-items-end mb-2">
+                    <div class="col-md-8">
+                        <label>Nome giornata:</label>
+                        <input type="text" name="nomi_giornata[]" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-danger rimuovi-giornata-btn" onclick="rimuoviGiornata(this)" style="display:none;">Rimuovi giornata</button>
+                    </div>
+                </div>
+                <div class="esercizi-container">
+                    <div class="esercizio-form row align-items-end mb-2">
+                        <div class="col-md-4">
+                            <label>Seleziona esercizio:</label>
+                            <select name="esercizi_0[]" class="form-control" required>
+                                <option value="">-- Seleziona --</option>
+                                {% for esercizio in esercizi %}
+                                    <option value="{{ esercizio.pk }}">{{ esercizio.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Serie:</label>
+                            <input type="number" name="serie_PT_0[]" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Ripetizioni:</label>
+                            <input type="number" name="ripetizioni_0[]" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Recupero (sec):</label>
+                            <input type="number" name="tempo_recupero_0[]" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger rimuovi-btn" onclick="rimuoviEsercizio(this)" style="display:none;">Rimuovi</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary mb-2" onclick="aggiungiEsercizio(this)">Aggiungi esercizio</button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary mb-3" onclick="aggiungiGiornata()">Aggiungi nome giornata</button>
+        <br>
+        <button type="submit" class="btn btn-success mt-2">Crea Scheda</button>
+    </form>
+</div>
+
+<script>
+let giornataIndex = 0;
+
+function aggiungiGiornata() {
+    giornataIndex++;
+    const container = document.getElementById('giornate-container');
+    const primaGiornata = container.firstElementChild;
+    const nuovaGiornata = primaGiornata.cloneNode(true);
+
+    // Pulisci i valori degli input
+    nuovaGiornata.querySelector('input[name^="nomi_giornata"]').value = '';
+    nuovaGiornata.querySelectorAll('.esercizio-form').forEach((form, idx) => {
+        if (idx > 0) form.remove();
+        else {
+            form.querySelectorAll('input, select').forEach(el => el.value = '');
+            form.querySelector('.rimuovi-btn').style.display = 'none';
+        }
+    });
+
+    // Aggiorna i name degli input esercizi per la nuova giornata
+    nuovaGiornata.querySelectorAll('select[name^="esercizi_"], input[name^="serie_PT_"], input[name^="ripetizioni_"], input[name^="tempo_recupero_"]').forEach(el => {
+        el.name = el.name.replace(/\d+/, giornataIndex);
+    });
+
+    // Mostra il bottone rimuovi giornata
+    nuovaGiornata.querySelector('.rimuovi-giornata-btn').style.display = 'inline';
+
+    container.appendChild(nuovaGiornata);
+}
+
+function rimuoviGiornata(btn) {
+    const container = document.getElementById('giornate-container');
+    if (container.children.length > 1) {
+        btn.closest('.giornata-form').remove();
+    }
+}
+
+function aggiungiEsercizio(btn) {
+    const giornata = btn.closest('.giornata-form');
+    const eserciziContainer = giornata.querySelector('.esercizi-container');
+    const giornataIdx = Array.from(document.getElementById('giornate-container').children).indexOf(giornata);
+
+    const primoEsercizio = eserciziContainer.firstElementChild;
+    const nuovoEsercizio = primoEsercizio.cloneNode(true);
+
+    nuovoEsercizio.querySelectorAll('input, select').forEach(el => el.value = '');
+    nuovoEsercizio.querySelector('.rimuovi-btn').style.display = 'inline';
+
+    // Aggiorna i name degli input per la giornata corrente
+    nuovoEsercizio.querySelector('select[name^="esercizi_"]').name = `esercizi_${giornataIdx}[]`;
+    nuovoEsercizio.querySelector('input[name^="serie_PT_"]').name = `serie_PT_${giornataIdx}[]`;
+    nuovoEsercizio.querySelector('input[name^="ripetizioni_"]').name = `ripetizioni_${giornataIdx}[]`;
+    nuovoEsercizio.querySelector('input[name^="tempo_recupero_"]').name = `tempo_recupero_${giornataIdx}[]`;
+
+    eserciziContainer.appendChild(nuovoEsercizio);
+}
+
+function rimuoviEsercizio(btn) {
+    const eserciziContainer = btn.closest('.esercizi-container');
+    if (eserciziContainer.children.length > 1) {
+        btn.closest('.esercizio-form').remove();
+    }
+}
+</script>
+{% endblock %}

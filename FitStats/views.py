@@ -3,6 +3,7 @@ from FitStats.models import *
 from django.conf import settings
 import os
 import hashlib
+from django.utils import timezone
 # Create your views here.
 def index(request):
     return render (request, 'index.html', {})
@@ -136,5 +137,59 @@ def creazione_schede(request):
     })
 
 def pagina_creazione_scheda(request):
- # Logica per la creazione della scheda, se necessaria
-    return render(request, 'pagina_creazione_scheda.html')
+    username = request.session.get('username', '')
+    if not username:
+        return redirect('login')
+
+    esercizi = Esercizio.objects.all()
+    success_message = None
+    error_message = None
+
+    if request.method == 'POST':
+        giorno_inizio = request.POST.get('giorno_inizio')
+        giorno_fine = request.POST.get('giorno_fine')
+        email_utente = request.POST.get('email_utente')
+        nomi_giornata = request.POST.getlist('nomi_giornata[]')
+
+        try:
+            utente = Utente.objects.get(email=email_utente)
+            nuovo_id_scheda = (Scheda.objects.aggregate(models.Max('id_scheda'))['id_scheda__max'] or 0) + 1
+
+            for idx, nome_giornata in enumerate(nomi_giornata):
+                scheda = Scheda.objects.create(
+                    id_scheda=nuovo_id_scheda,
+                    nome_giornata=nome_giornata,
+                    giorno_inizio=giorno_inizio,
+                    giorno_fine=giorno_fine,
+                    email_utente=utente,
+                    creata_da=username
+                )
+                esercizi_ids = request.POST.getlist(f'esercizi_{idx}[]')
+                serie_list = request.POST.getlist(f'serie_PT_{idx}[]')
+                ripetizioni_list = request.POST.getlist(f'ripetizioni_{idx}[]')
+                recupero_list = request.POST.getlist(f'tempo_recupero_{idx}[]')
+
+                if not (esercizi_ids and serie_list and ripetizioni_list and recupero_list):
+                    error_message = "Compila tutti i parametri per ogni esercizio."
+                    break
+
+                for e_idx, esercizio_id in enumerate(esercizi_ids):
+                    esercizio = Esercizio.objects.get(pk=esercizio_id)
+                    Composizione.objects.create(
+                        nome_esercizio=esercizio,
+                        scheda=scheda,
+                        serie_PT=serie_list[e_idx],
+                        ripetizioni=ripetizioni_list[e_idx],
+                        tempo_recupero=recupero_list[e_idx]
+                    )
+            if not error_message:
+                success_message = "Scheda creata con successo!"
+        except Exception as e:
+            error_message = "Errore nella creazione della scheda: " + str(e)
+
+    return render(request, 'pagina_creazione_scheda.html', {
+        'esercizi': esercizi,
+        'success_message': success_message,
+        'error_message': error_message
+    })
+
