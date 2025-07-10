@@ -1,0 +1,171 @@
+{% extends "abbellimento.html" %}
+{% block content %}
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+
+.dashboard-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.welcome-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #333333;
+    text-align: center;
+}
+
+.scheda-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    gap: 16px;
+}
+
+.scheda-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.form-select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    padding: 10px 16px;
+    background-color: #3c6add;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2a4c9c;
+}
+
+.esercizi-section {
+    margin-top: 40px;
+}
+
+.section-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #333333;
+    text-align: center;
+}
+
+.esercizi-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.esercizi-table thead {
+    background-color: #3c6add;
+    color: #fff;
+}
+
+.esercizi-table th,
+.esercizi-table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    color: #222;
+}
+
+.esercizi-table tr:nth-child(even) {
+    background-color: #f0f4fa;
+}
+
+.no-scheda-text {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.99);
+    text-align: center;
+    margin-top: 30px;
+}
+</style>
+
+<div class="dashboard-container">
+    <h1 class="welcome-title">Ciao {{ username }}</h1>
+
+    {% if schede %}
+    <div class="scheda-form-row">
+        <form method="post" class="scheda-form">
+            {% csrf_token %}
+            <label for="scheda_select" class="form-label">Seleziona una scheda:</label>
+            <select name="scheda_id" id="scheda_select" class="form-select">
+                {% for scheda in schede %}
+                <option value="{{ scheda.id_scheda }}"
+                    {% if scheda_selezionata and scheda.id_scheda == scheda_selezionata.id_scheda %}selected{% endif %}>
+                    Scheda #{{ scheda.id_scheda }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-primary">Visualizza</button>
+        </form>
+        <a href="{% url 'aggiungi_integratore' %}">
+            <button type="button" class="btn-primary">Aggiungi integratore</button>
+        </a>
+    </div>
+
+    {% if esercizi %}
+    <div class="esercizi-section">
+        <h2 class="section-title">Esercizi della scheda {{ scheda_selezionata.id_scheda }}</h2>
+        <table class="esercizi-table">
+            <thead>
+                <tr>
+                    <th>Giornata</th>
+                    <th>Esercizio</th>
+                    <th>Serie</th>
+                    <th>Ripetizioni</th>
+                    <th>Recupero (sec)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comp in esercizi %}
+                <tr>
+                    <td>{{ comp.nome_giornata }}</td>
+                    <td>{{ comp.nome_esercizio.nome }}</td>
+                    <td>{{ comp.serie_PT }}</td>
+                    <td>{{ comp.ripetizioni }}</td>
+                    <td>{{ comp.tempo_recupero }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="form-label" style="margin-top: 30px; border: 1px solid #3c6add; border-radius: 6px; padding: 12px; background: #f0f4fa; color: #000;">
+        <strong>{{ scheda_selezionata.creata_da }}</strong>
+    </p>
+    {% endif %}
+
+    {% else %}
+    <p class="no-scheda-text">Non hai ancora nessuna scheda assegnata.</p>
+    {% endif %}
+</div>
+{% endblock %}

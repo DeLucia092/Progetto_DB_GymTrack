@@ -28,10 +28,11 @@ urlpatterns = [
     path('registration', scelta_registrazione, name='scelta_registrazione'),
     path('registration/cliente', registrazione_cliente, name='registrazione_cliente'),
     path('registration/trainer/', registrazione_trainer, name='registrazione_trainer'),
-
     path('creazione_schede/', creazione_schede, name='creazione_schede'),
-
     path('pagina_creazione_scheda/', pagina_creazione_scheda, name='pagina_creazione_scheda'),
+    path('mie_schede/', mie_schede, name='mie_schede'),
+    path('aggiungi_integratore/', aggiungi_integratore, name='aggiungi_integratore'),
+
 ]
 
 if settings.DEBUG:

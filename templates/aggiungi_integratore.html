@@ -1,0 +1,67 @@
+{% extends "abbellimento.html" %}
+{% block content %}
+<style>
+.integratore-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 32px 28px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(60, 106, 221, 0.08);
+}
+
+.integratore-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #3c6add;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.integratore-form label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.integratore-form input,
+.integratore-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 15px;
+    margin-bottom: 18px;
+    background: #f4f6fa;
+    color: #222;
+    resize: vertical;
+}
+
+.btn-primary {
+    padding: 10px 18px;
+    background-color: #3c6add;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: #2a4c9c;
+}
+</style>
+
+<div class="integratore-container">
+    <h2 class="integratore-title">Aggiungi un nuovo integratore</h2>
+    <form method="post" class="integratore-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Salva</button>
+    </form>
+</div>
+{% endblock %}

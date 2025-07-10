@@ -3,10 +3,11 @@ from FitStats.models import *
 from django.conf import settings
 import os
 import hashlib
+from .forms import IntegratoreForm
 from django.utils import timezone
 # Create your views here.
 def index(request):
-    return render (request, 'index.html', {})
+    return render (request, 'homepage.html', {})
 
 def authenticated(email, password):
     return Utente.objects.filter(email=email, password=password).exists()
@@ -18,7 +19,7 @@ def login(request):
         if not email or not password:
             return render(request, 'index.html', {'error_message': "Compila tutti i campi"})
 
-        hashed_pass = hashlib.md5(password.encode()).hexdigest()
+        hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
         if authenticated(email, hashed_pass):
             utente = Utente.objects.get(email=email)
@@ -27,7 +28,8 @@ def login(request):
             # Controllo se trainer
             if email.lower().endswith('@pt.com'):
                 return render(request, 'creazione_schede.html', {'username': utente.username})
-            return redirect('homepage')
+            # Se è cliente, redirect a mie_schede
+            return redirect('mie_schede')
         else:
             return render(request, 'index.html', {'error_message': "Credenziali non valide, riprova"})
     else:
@@ -47,7 +49,7 @@ def register(request):
 def registration_function(email, username, password, request):
     if Utente.objects.filter(email=username).exists():
         return render(request, 'registration.html', {'error_message': "Utente esiste già"})
-    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
     utente = Utente(email=email, password=hashed_password, username=username)
     utente.save()
     return render(request, 'index.html', {'username': username})
@@ -136,6 +138,7 @@ def creazione_schede(request):
         'utente': utente
     })
 
+
 def pagina_creazione_scheda(request):
     username = request.session.get('username', '')
     if not username:
@@ -153,17 +156,15 @@ def pagina_creazione_scheda(request):
 
         try:
             utente = Utente.objects.get(email=email_utente)
-            nuovo_id_scheda = (Scheda.objects.aggregate(models.Max('id_scheda'))['id_scheda__max'] or 0) + 1
+            # Crea la scheda UNA SOLA VOLTA
+            scheda = Scheda.objects.create(
+                giorno_inizio=giorno_inizio,
+                giorno_fine=giorno_fine,
+                email_utente=utente,
+                creata_da=username
+            )
 
             for idx, nome_giornata in enumerate(nomi_giornata):
-                scheda = Scheda.objects.create(
-                    id_scheda=nuovo_id_scheda,
-                    nome_giornata=nome_giornata,
-                    giorno_inizio=giorno_inizio,
-                    giorno_fine=giorno_fine,
-                    email_utente=utente,
-                    creata_da=username
-                )
                 esercizi_ids = request.POST.getlist(f'esercizi_{idx}[]')
                 serie_list = request.POST.getlist(f'serie_PT_{idx}[]')
                 ripetizioni_list = request.POST.getlist(f'ripetizioni_{idx}[]')
@@ -176,6 +177,7 @@ def pagina_creazione_scheda(request):
                 for e_idx, esercizio_id in enumerate(esercizi_ids):
                     esercizio = Esercizio.objects.get(pk=esercizio_id)
                     Composizione.objects.create(
+                        nome_giornata=nome_giornata,
                         nome_esercizio=esercizio,
                         scheda=scheda,
                         serie_PT=serie_list[e_idx],
@@ -193,3 +195,42 @@ def pagina_creazione_scheda(request):
         'error_message': error_message
     })
 
+def mie_schede(request):
+    username = request.session.get('username')
+    user_email = request.session.get('user_email')
+    if not username or not user_email:
+        return redirect('login')
+
+    # Recupera tutte le schede dell'utente
+    schede = Scheda.objects.filter(
+        id_scheda__in=Composizione.objects.filter(
+            scheda__email_utente__email=user_email
+        ).values_list('scheda__id_scheda', flat=True)
+    ).distinct()
+
+    scheda_selezionata = None
+    esercizi = None
+    if request.method == 'POST':
+        scheda_id = request.POST.get('scheda_id')
+        if scheda_id:
+            scheda_selezionata = schede.filter(id_scheda=scheda_id).first()
+            # Recupera tutte le composizioni (esercizi) della scheda selezionata
+            esercizi = Composizione.objects.filter(scheda__id_scheda=scheda_id)
+
+    return render(request, 'mie_schede.html', {
+        'username': username,
+        'schede': schede,
+        'scheda_selezionata': scheda_selezionata,
+        'esercizi': esercizi  # Ogni esercizio ha esercizio.nome_giornata
+    })
+
+
+def aggiungi_integratore(request):
+    if request.method == 'POST':
+        form = IntegratoreForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('mie_schede')
+    else:
+        form = IntegratoreForm()
+    return render(request, 'aggiungi_integratore.html', {'form': form})

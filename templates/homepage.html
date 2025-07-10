@@ -1,15 +1,40 @@
 {% extends "abbellimento.html" %}
 
-        {% block content %}
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <h2 class="mb-4">Homepage</h2>
-                <p class="fs-4">BENVENUTO {{ username }}</p>
-                <br><br>
-                <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Logout</button>
-                </form>
-            </div>
-        </div>
-        {% endblock %}
+                                            {% block title %}Login{% endblock %}
+
+                                            {% block content %}
+                                            <div style="background-color:rgba(60,106,221,0.75); width:100vw; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw;" class="py-4 mb-4">
+                                                <h1 class="text-center" style="font-size:2.2rem; color:#fff;">GymTrack Gestionale</h1>
+                                            </div>
+                                            <div class="row justify-content-center">
+                                                <div class="col-md-6">
+                                                    <div class="card shadow-sm">
+                                                        <div class="card-body">
+                                                            <h2 class="card-title text-center mb-4">Login</h2>
+                                                            <h3 class="text-center mb-4" style="color:rgba(60,106,221,0.75);">Benvenuto in palestra</h3>
+                                                            <form method="post" action="/login">
+                                                                {% csrf_token %}
+                                                                <div class="mb-3">
+                                                                    <label for="username" class="form-label">Email:</label>
+                                                                    <input type="text" class="form-control" id="username" name="username" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="password" class="form-label">Password:</label>
+                                                                    <input type="password" class="form-control" id="password" name="password" required>
+                                                                </div>
+                                                                <div class="d-grid mb-3">
+                                                                    <button type="submit" class="btn btn-primary">Login</button>
+                                                                </div>
+                                                            </form>
+                                                            {% if error_message %}
+                                                            <div class="alert alert-danger text-center">{{ error_message }}</div>
+                                                            {% endif %}
+                                                            <div class="text-center">
+                                                                <p class="mb-2">Non ancora registrato?</p>
+                                                                <a href="/registration" class="btn btn-outline-secondary">Registrati</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endblock %}

@@ -48,8 +48,7 @@ class Preferenza(models.Model):
         unique_together = (('nome_esercizio', 'email_utente'),)
 
 class Scheda(models.Model):
-    id_scheda = models.IntegerField()
-    nome_giornata = models.CharField(max_length=100)
+    id_scheda = models.AutoField(primary_key=True)  # ID della scheda, può essere un numero intero
     giorno_inizio = models.DateField(blank=False, null=False)
     giorno_fine = models.DateField(blank=False, null=False)
     email_utente = models.ForeignKey(Utente, on_delete=models.CASCADE, related_name='schede') #chiave esterna che collega la scheda all'utente
@@ -59,19 +58,18 @@ class Scheda(models.Model):
         if not Utente.objects.filter(username=self.creata_da, ruolo='Personal Trainer').exists():
             raise ValidationError({'creata_da': 'Il nome inserito non corrisponde a un Personal Trainer registrato.'})
 
-    class Meta:
-        unique_together = (('id_scheda', 'nome_giornata'),)
 
 
 class Composizione(models.Model):
     nome_esercizio = models.ForeignKey(Esercizio, on_delete=models.CASCADE, related_name='composizioni')
-    scheda = models.ForeignKey(Scheda, on_delete=models.CASCADE, related_name='composizioni')
+    scheda = models.ForeignKey('Scheda', to_field='id_scheda', on_delete=models.CASCADE, related_name='composizioni')
     #non metto anche nome_giornata perchè in django non è possibile avere una chiave esterna composta.
     #Scheda: collega la Composizione a una specifica riga di Scheda (che è identificata dalla coppia id_scheda e nome_giornata).
     serie_PT = models.IntegerField(default=0, blank=True, null=True)  # Numero di serie consigliate dal Personal Trainer
     tempo_recupero = models.IntegerField(default=60, blank=True, null=True)  # Tempo di recupero in secondi tra le serie
     peso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, blank=True,null=True)  # Peso per l'esercizio
     ripetizioni = models.IntegerField(default=0, blank=True, null=True)  # Numero di ripetizioni
+    nome_giornata = models.CharField(max_length=100, default="")
     class Meta:
         unique_together = (('scheda', 'nome_esercizio'),)
 
