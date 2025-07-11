@@ -1,5 +1,5 @@
 # GymTrack – Sistema Informativo per Schede di Allenamento
-GymTrack è un sistema informativo full-stack progettato per digitalizzare e ottimizzare la gestione delle schede di allenamento in palestre, studi di personal training e centri sportivi. L’obiettivo principale è superare le inefficienze dei metodi cartacei, offrendo una piattaforma web responsiva e sicura per Personal Trainer e Clienti, con accesso rapido e organizzato alle schede di allenamento personalizzate.GymTrack è un sistema informativo full-stack progettato per digitalizzare e ottimizzare la gestione delle schede di allenamento in palestre, studi di personal training e centri sportivi. L’obiettivo principale è superare le inefficienze dei metodi cartacei, offrendo una piattaforma web responsiva e sicura per Personal Trainer e Clienti, con accesso rapido e organizzato alle schede di allenamento personalizzate.
+GymTrack è un sistema informativo full-stack progettato per digitalizzare e ottimizzare la gestione delle schede di allenamento in palestre, studi di personal training e centri sportivi. L’obiettivo principale è superare le inefficienze dei metodi cartacei, offrendo una piattaforma web responsiva e sicura per Personal Trainer e Clienti, con accesso rapido e organizzato alle schede di allenamento personalizzate.
 
 ---
 
