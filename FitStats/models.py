@@ -63,15 +63,14 @@ class Scheda(models.Model):
 class Composizione(models.Model):
     nome_esercizio = models.ForeignKey(Esercizio, on_delete=models.CASCADE, related_name='composizioni')
     scheda = models.ForeignKey('Scheda', to_field='id_scheda', on_delete=models.CASCADE, related_name='composizioni')
-    #non metto anche nome_giornata perchè in django non è possibile avere una chiave esterna composta.
-    #Scheda: collega la Composizione a una specifica riga di Scheda (che è identificata dalla coppia id_scheda e nome_giornata).
-    serie_PT = models.IntegerField(default=0, blank=True, null=True)  # Numero di serie consigliate dal Personal Trainer
-    tempo_recupero = models.IntegerField(default=60, blank=True, null=True)  # Tempo di recupero in secondi tra le serie
-    peso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, blank=True,null=True)  # Peso per l'esercizio
-    ripetizioni = models.IntegerField(default=0, blank=True, null=True)  # Numero di ripetizioni
+    serie_PT = models.IntegerField(default=0, blank=True, null=True)
+    tempo_recupero = models.IntegerField(default=60, blank=True, null=True)
+    peso = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, blank=True, null=True)
+    ripetizioni = models.IntegerField(default=0, blank=True, null=True)
     nome_giornata = models.CharField(max_length=100, default="")
+
     class Meta:
-        unique_together = (('scheda', 'nome_esercizio'),)
+        unique_together = (('scheda', 'nome_giornata', 'nome_esercizio'),)
 
 class Scheda_integratori(models.Model):
     id_scheda_integratori = models.AutoField(primary_key=True)
